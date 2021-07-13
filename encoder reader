@@ -1,0 +1,26 @@
+#define ENCA 2 // Yellow
+#define ENCB 3 // White
+#define ENCC 18
+#define ENCD 19
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ENCA,INPUT);
+  pinMode(ENCB,INPUT);
+  pinMode(ENCC,INPUT);
+  pinMode(ENCD,INPUT);
+  }
+
+void loop() {
+  int c = digitalRead(ENCC);
+  int d = digitalRead(ENCD);
+  int a = digitalRead(ENCA);
+  int b = digitalRead(ENCB);
+  Serial.print(a); 
+  Serial.print(" ");
+  Serial.print(b);
+  Serial.print(" ");
+  Serial.print(c);
+  Serial.print(" ");
+  Serial.print(d);
+  Serial.println();
