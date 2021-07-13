@@ -1,0 +1,43 @@
+#include <stdio.h>
+
+int brocheA = 3; //le signal A est branché sur la broche 3
+int brocheB = 2; //le signal B est branché sur la broche 2
+int brocheC = 18;
+int brocheD= 19;
+
+int etatA = 1;
+int etatB = 1;
+int mouvement = 0;
+void setup() {
+  pinMode(brocheC, INPUT);
+  pinMode(brocheD, INPUT);
+  pinMode(brocheA, INPUT);
+  pinMode(brocheB, INPUT);
+  Serial.begin(9600);
+  while (!Serial) {}
+  Serial.println("ready");
+  attachInterrupt(digitalPinToInterrupt(brocheC), detection, FALLING);
+  attachInterrupt(digitalPinToInterrupt(brocheA), detection, FALLING); //un front montant détecter sur la broche A
+}
+void loop(){
+ if (mouvement == 1){ 
+   mouvement = 0;
+      }  
+}
+  void detection() { //detection d'un front montant sur la broche A
+  mouvement = 1;
+  delay(500);
+  if (digitalRead(brocheB) == HIGH) { //etat de la broche B
+      Serial.println("Sens 1");
+    }
+  if (digitalRead(brocheB) == LOW) { //etat de la broche A
+      Serial.println("Sens 2");
+}
+ if (digitalRead(brocheD) == HIGH) {
+        Serial.println("sens 1");
+ }
+ if (digitalRead(brocheD) == LOW){
+    Serial.println("sens 2");
+ }
+ }
+  
