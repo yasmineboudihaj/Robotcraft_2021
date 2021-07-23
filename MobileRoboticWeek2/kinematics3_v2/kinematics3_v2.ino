@@ -1,10 +1,16 @@
 #include <Encoder.h>
 
-// pin numbers
+// encoder pins
 const byte encL1 = 2;
 const byte encL2 = 3;
 const byte encR1 = 18;
 const byte encR2 = 19;
+
+// motor pins
+const byte rightMotorSpeed = 4;
+const byte rightMotorToggle = 5;
+const byte leftMotorSpeed = 9;
+const byte leftMotorToggle = 6;
 
 // initialize encoders
 Encoder encR(encL1, encL2);
@@ -168,17 +174,12 @@ void loop() {
   integralErrorOld[0] = 0;
   integralErrorOld[1] = 0;
   
-  cmd_vel(0.01, 0.01, desiredVels);
+  cmd_vel(-100, 0, desiredVels);
   cmd_vel2wheels(desiredVels[0], desiredVels[1], robot, desiredWheelVels);
   while (millis() - currentTime > 100){ // 100ms
    // output
-    //robot.printPose();
     currentPulses[0] = encL.read();
     currentPulses[1] = encR.read();
-    Serial.print(currentPulses[0]);
-    Serial.print(" ");
-    Serial.print(currentPulses[1]);
-    Serial.println();
     
     // update robot pose
     poseUpdate2(currentPulses[0] - oldPulses[0],
@@ -191,11 +192,30 @@ void loop() {
     derivError = getDerivError(propErrorOld, propErrorNew);
     integralErrorNew = getIntegralError(integralErrorOld, propErrorNew);
 
-    gain = pid(0.1, 0.1, 0.1, propErrorNew, derivError, integralErrorNew, deltaT);
-    Serial.print(gain[0]);
-    Serial.print(" ");
-    Serial.print(gain[1]);
-    Serial.println();
+    gain = pid(1.0, 0.07, 0, propErrorNew, derivError, integralErrorNew, deltaT);
+    float gain2 [2];
+    float desiredVels2[2];
+    float realVels2[2];
+    
+    gain2[0] = gain[0];
+    gain2[1] = gain[1];
+    desiredVels2[0] = desiredVels[0];
+    desiredVels2[1] = desiredVels[1];
+    realVels2[0] = realVels[0];
+    realVels2[1] = realVels[1];
+    
+    if (gain2[0] < 0) digitalWrite(leftMotorToggle, HIGH);
+    else digitalWrite(leftMotorToggle, LOW);
+    if (gain2[1] < 0) digitalWrite(rightMotorToggle, HIGH);
+    else digitalWrite(rightMotorToggle, LOW);
+
+    if (gain2[0] > 255) gain2[0] = 255;
+    if (gain2[1] > 255) gain2[1] = 255;
+    if (gain2[0] < -255) gain2[0] = -255;
+    if (gain2[1] < -255) gain2[1] = -255;
+    analogWrite(leftMotorSpeed, abs(gain2[0]));
+    analogWrite(rightMotorSpeed, abs(gain2[1]));
+    
     // updates
     oldPulses[0] = currentPulses[0];
     oldPulses[1] = currentPulses[1];
