@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find simstage_group7)/worlds/rooms.world" output="screen"/>
+    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"/>
+</launch>

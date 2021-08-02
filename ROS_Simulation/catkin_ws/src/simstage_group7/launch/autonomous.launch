@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find simstage_group7)/worlds/rooms.world" output="screen"/>
+    <node pkg="stage_tutorial" type="reactive_navigation" name="reactive_navigation" output="screen"/>
+</launch>
