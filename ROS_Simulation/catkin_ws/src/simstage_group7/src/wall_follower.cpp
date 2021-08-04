@@ -1,4 +1,6 @@
 #include <iostream>
+#include <numeric>
+
 
 #include "ros/ros.h"
 #include "sensor_msgs/LaserScan.h"
@@ -16,7 +18,12 @@
 class WallFollower
 {
 protected:
-    double obstacle_distance;
+    double left_obstacle_distance;
+    double front_obstacle_distance;
+    double right_obstacle_distance;
+
+    double left_threshold = 0.3;
+    double front_threshold = 0.3;
     ros::Publisher cmd_vel_pub;
     ros::Subscriber laser_sub;
     
@@ -24,14 +31,26 @@ protected:
     geometry_msgs::Twist calculateCommand()
     {
         auto msg = geometry_msgs::Twist();
-        if(obstacle_distance < 1 ){
+        if (front_obstacle_distance >= front_threshold){
+            msg.linear.x = 0.1;
+            msg.angular.z = 0.0;
+        }
+        if(left_obstacle_distance < left_threshold && front_obstacle_distance >= front_threshold){
           msg.linear.x = 0.1;
           msg.angular.z = 0.0;
-          
-        }else{
-            msg.linear.x = 0;
-            msg.angular.z = 0;
         }
+        else if(left_obstacle_distance < left_threshold ){
+            msg.linear.x = 0.0;
+            msg.angular.z = -0.7; // turn right     
+        }
+        /*else if (left_obstacle_distance == threshold) {
+            msg.linear.x = 0.0;
+            msg.angular.z = 0.5;
+        }*/
+        /*else {
+            msg.linear.x = 0.0;
+            msg.angular.z = 0.5;  
+        }*/
 
         return msg;
     }
@@ -47,8 +66,12 @@ public:
     }
 
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-        obstacle_distance = *std::min_element (msg->ranges.begin() + 180, msg->ranges.begin() + 359);
-        std::cout << "Min: " << obstacle_distance << std::endl;
+        //left_obstacle_distance = *std::min_element (msg->ranges.begin() + 180 + 45, msg->ranges.begin() + 270 + 44);
+        left_obstacle_distance = std::accumulate(msg->ranges.begin() + 270 - 30, msg->ranges.begin() + 270 + 29, 0) / 60.;
+        front_obstacle_distance = std::accumulate (msg->ranges.begin() + 180 - 20, msg->ranges.begin() + 180 + 19, 0) / 40.;
+        right_obstacle_distance = std::accumulate (msg->ranges.begin() + 45, msg->ranges.begin() + 90 + 44, 0) / 90.;
+        std::cout << "Left: " << left_obstacle_distance;
+        std::cout << ", front: " << front_obstacle_distance << std::endl;
     }
 
     void run(){
