@@ -29,7 +29,7 @@ int main(int argc, char **argv){
 
   while (ros::ok()){
     
-      if(obstacle_distance < 1.0){
+      if(obstacle_distance < 0.2){
           cmd_vel_msg.linear.x = 0.0;
           cmd_vel_msg.angular.z = 0.0;
           
