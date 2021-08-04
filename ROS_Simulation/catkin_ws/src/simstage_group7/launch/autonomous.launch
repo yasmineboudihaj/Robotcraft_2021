@@ -1,4 +1,5 @@
 <launch>
     <node pkg="stage_ros" type="stageros" name="stageros" args="$(find simstage_group7)/worlds/labyrinth.world" output="screen"/>
-    <node pkg="stage_tutorial" type="reactive_navigation" name="reactive_navigation" output="screen"/>
+    <!-- <node pkg="stage_tutorial" type="reactive_navigation" name="reactive_navigation" output="screen"/> -->
+    <node pkg="simstage_group7" type="wall_follower" name="wall_follower" output="screen"/>
 </launch>
