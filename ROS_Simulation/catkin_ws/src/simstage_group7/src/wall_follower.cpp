@@ -15,7 +15,7 @@
 
 class WallFollower
 {
-private:
+protected:
     double obstacle_distance;
     ros::Publisher cmd_vel_pub;
     ros::Subscriber laser_sub;
@@ -24,7 +24,7 @@ private:
     geometry_msgs::Twist calculateCommand()
     {
         auto msg = geometry_msgs::Twist();
-        if(this->obstacle_distance < 1 ){
+        if(obstacle_distance < 1 ){
           msg.linear.x = 0.1;
           msg.angular.z = 0.0;
           
@@ -42,13 +42,13 @@ public:
         // Initialize ROS
         ros::NodeHandle n;
         // Create a publisher object, able to push messages
-        this->cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-        this->laser_sub = n.subscribe("base_scan", 1000, &WallFollower::laserCallback, this);
+        cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
+        laser_sub = n.subscribe("base_scan", 1000, &WallFollower::laserCallback, this);
     }
 
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-        this->obstacle_distance = *std::min_element (msg->ranges.begin() + 180, msg->ranges.begin() + 359);
-        std::cout << "Min: " << this->obstacle_distance << std::endl;
+        obstacle_distance = *std::min_element (msg->ranges.begin() + 180, msg->ranges.begin() + 359);
+        std::cout << "Min: " << obstacle_distance << std::endl;
     }
 
     void run(){
@@ -58,7 +58,7 @@ public:
         {
             auto msg = calculateCommand();
             // Publish the new command
-            this->cmd_vel_pub.publish(msg);
+            cmd_vel_pub.publish(msg);
 
             // And throttle the loop
             ros::spinOnce();
