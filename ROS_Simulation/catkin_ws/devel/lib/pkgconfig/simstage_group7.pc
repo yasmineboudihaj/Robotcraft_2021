@@ -1,0 +1,8 @@
+prefix=/home/yasmine/Robotcraft/ROS_Simulation/catkin_ws/devel
+
+Name: simstage_group7
+Description: Description of simstage_group7
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

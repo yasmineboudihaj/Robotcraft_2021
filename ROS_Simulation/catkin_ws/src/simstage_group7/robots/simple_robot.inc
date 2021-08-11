@@ -24,7 +24,7 @@ define laser ranger(
 define simple_robot position(
   odom_error [0.03 0.03 0.00 0.05]
   localization "odom"
-  size [ 0.4 0.4 0.24 ]
+  size [ 0.3 0.3 0.14 ]
   gui_nose 1
   drive "diff"
   color "white"
