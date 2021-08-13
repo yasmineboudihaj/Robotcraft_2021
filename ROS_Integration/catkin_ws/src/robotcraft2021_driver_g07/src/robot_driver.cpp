@@ -1,20 +1,33 @@
 #include "ros/ros.h"
 
+#include "std_msgs/Float32.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose2D.h"
 #include "nav_msgs/Odometry.h"
 
-#include <tf/transform_broadcaster.h>
+#include "tf/transform_broadcaster.h"
 
 
 class RobotDriver{
 
 protected:
+    // Publishers
     ros::Publisher odom_pub;
+    ros::Publisher ir_front_sensor_pub;
+    ros::Publisher ir_right_sensor_pub;
+    ros::Publisher ir_left_sensor_pub;
+
+    // Subscribers
     ros::Subscriber pose_sub;
+    ros::Subscriber front_distance_sub;
+    ros::Subscriber right_distance_sub;
+    ros::Subscriber left_distance_sub;
+
+    // Broadcasters
     tf::TransformBroadcaster odom_broadcaster;
 
     geometry_msgs::Pose robot_pose;
+
     ros::Time current_time;
   
 public:
@@ -23,9 +36,19 @@ public:
         // Initialize ROS
         ros::NodeHandle n;
 
-        // define nodes we publish to and subscribe from
+        // define nodes we publish to
         odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1000);
+
+        ir_front_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_front_sensor", 1000);
+        ir_right_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_right_sensor", 1000);
+        ir_left_sensor_pub  = n.advertise<nav_msgs::Odometry>("/ir_left_sensor",  1000);
+
+        // define nodes we subscribe to
         pose_sub = n.subscribe("pose", 1000, &RobotDriver::pose_callback, this);
+
+        front_distance_sub = n.subscribe("front_distance", 1000, &RobotDriver::front_distance_callback, this);
+        right_distance_sub = n.subscribe("right_distance", 1000, &RobotDriver::right_distance_callback, this);
+        left_distance_sub  = n.subscribe("left_distance",  1000, &RobotDriver::left_distance_callback,  this);
     }
 
     void pose_callback(const geometry_msgs::Pose2D::ConstPtr& msg){
@@ -65,6 +88,18 @@ public:
         return odom;
     }
 
+    void front_distance_callback (const std_msgs::Float32::ConstPtr& msg){
+        // TODO: store distance message
+    }
+
+    void right_distance_callback (const std_msgs::Float32::ConstPtr& msg){
+        // TODO: store distance message
+    }
+
+    void left_distance_callback (const std_msgs::Float32::ConstPtr& msg){
+        // TODO: store distance message
+    }
+
     void run(){
         // Send messages in a loop
         ros::Rate loop_rate(10);
@@ -73,6 +108,8 @@ public:
             auto odom_msg = create_odom_message();
             odom_pub.publish(odom_msg);
 
+            // TODO: publish sensor data
+            
             // And throttle the loop
             ros::spinOnce();
             loop_rate.sleep();
