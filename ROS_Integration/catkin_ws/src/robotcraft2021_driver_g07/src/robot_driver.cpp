@@ -4,6 +4,9 @@
 #include "geometry_msgs/Pose2D.h"
 #include "nav_msgs/Odometry.h"
 
+#include <tf/transform_broadcaster.h>
+
+
 class RobotDriver{
 
 protected:
@@ -25,8 +28,22 @@ public:
     void pose_callback(const geometry_msgs::Pose2D::ConstPtr& msg){
         robot_pose.position.x = msg->x;
         robot_pose.position.y = msg->y;
-        // TODO:convert theta to quaternion
+        // convert theta to quaternion
+        robot_pose.orientation = tf::createQuaternionMsgFromYaw(msg->theta);
+    }
 
+    nav_msgs::Odometry create_odom_message(){
+        nav_msgs::Odometry odom;
+        //odom.header.stamp = current_time;
+        odom.header.frame_id = "odom";
+
+        //set the position
+        odom.pose.pose.position.x = robot_pose.position.x;
+        odom.pose.pose.position.y = robot_pose.position.y;
+        odom.pose.pose.position.z = 0.0;
+        odom.pose.pose.orientation = robot_pose.orientation;
+
+        return odom;
     }
 
     void run(){
@@ -34,8 +51,8 @@ public:
         ros::Rate loop_rate(10);
         while (ros::ok())
         {
-            //auto msg = chooseBehavior();
-            //cmd_vel_pub.publish(msg);
+            auto odom_msg = create_odom_message();
+            odom_pub.publish(odom_msg);
 
             // And throttle the loop
             ros::spinOnce();
