@@ -4,6 +4,7 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose2D.h"
 #include "nav_msgs/Odometry.h"
+#include "sensor_msgs/Range.h"
 
 #include "tf/transform_broadcaster.h"
 
@@ -27,6 +28,7 @@ protected:
     tf::TransformBroadcaster odom_broadcaster;
 
     geometry_msgs::Pose robot_pose;
+    double front_distance, right_distance, left_distance;
 
     ros::Time current_time;
   
@@ -88,16 +90,29 @@ public:
         return odom;
     }
 
-    void front_distance_callback (const std_msgs::Float32::ConstPtr& msg){
-        // TODO: store distance message
+    void front_distance_callback(const std_msgs::Float32::ConstPtr& msg){
+        front_distance = msg->data;
     }
 
-    void right_distance_callback (const std_msgs::Float32::ConstPtr& msg){
-        // TODO: store distance message
+    void right_distance_callback(const std_msgs::Float32::ConstPtr& msg){
+        right_distance = msg->data;
     }
 
-    void left_distance_callback (const std_msgs::Float32::ConstPtr& msg){
-        // TODO: store distance message
+    void left_distance_callback(const std_msgs::Float32::ConstPtr& msg){
+        left_distance = msg->data;
+    }
+
+    sensor_msgs::Range create_range_msg(std::string header_id, double distance){
+        sensor_msgs::Range msg;	
+        msg.header.stamp = ros::Time::now();
+        msg.header.frame_id = header_id;
+        msg.radiation_type = 1;
+        msg.field_of_view = 0.034906585;
+        msg.min_range = 0.1;
+        msg.max_range = 0.8;
+        msg.range = distance;
+
+        return msg;
     }
 
     void run(){
@@ -107,9 +122,10 @@ public:
         {
             auto odom_msg = create_odom_message();
             odom_pub.publish(odom_msg);
+            ir_front_sensor_pub.publish(create_range_msg("front_ir", front_distance));
+            ir_right_sensor_pub.publish(create_range_msg("right_ir", right_distance));
+            ir_left_sensor_pub.publish(create_range_msg("left_ir", left_distance));
 
-            // TODO: publish sensor data
-            
             // And throttle the loop
             ros::spinOnce();
             loop_rate.sleep();
