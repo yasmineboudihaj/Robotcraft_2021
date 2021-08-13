@@ -12,8 +12,11 @@ class RobotDriver{
 protected:
     ros::Publisher odom_pub;
     ros::Subscriber pose_sub;
+    tf::TransformBroadcaster odom_broadcaster;
 
     geometry_msgs::Pose robot_pose;
+    ros::Time current_time;
+  
 public:
 
     RobotDriver(){
@@ -26,15 +29,31 @@ public:
     }
 
     void pose_callback(const geometry_msgs::Pose2D::ConstPtr& msg){
+        // convert geometry_msgs::Pose2D to geometry_msgs::Pose for odom
         robot_pose.position.x = msg->x;
         robot_pose.position.y = msg->y;
         // convert theta to quaternion
-        robot_pose.orientation = tf::createQuaternionMsgFromYaw(msg->theta);
+        geometry_msgs::Quaternion orientation = tf::createQuaternionMsgFromYaw(msg->theta);
+        robot_pose.orientation = orientation;
+
+        // broadcast tf transform with pose information
+        geometry_msgs::TransformStamped odom_trans;
+        current_time = ros::Time::now();
+        odom_trans.header.stamp = current_time;
+        odom_trans.header.frame_id = "odom";
+        odom_trans.child_frame_id = "base_link";
+
+        odom_trans.transform.translation.x = msg->x;
+        odom_trans.transform.translation.y = msg->y;
+        odom_trans.transform.translation.z = 0.0;
+        odom_trans.transform.rotation = orientation;
+
+        //send the transform
+        odom_broadcaster.sendTransform(odom_trans);
     }
 
     nav_msgs::Odometry create_odom_message(){
         nav_msgs::Odometry odom;
-        //odom.header.stamp = current_time;
         odom.header.frame_id = "odom";
 
         //set the position
