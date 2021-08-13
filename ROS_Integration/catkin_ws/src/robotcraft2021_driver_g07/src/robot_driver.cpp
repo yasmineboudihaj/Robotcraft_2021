@@ -41,9 +41,9 @@ public:
         // define nodes we publish to
         odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1000);
 
-        ir_front_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_front_sensor", 1000);
-        ir_right_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_right_sensor", 1000);
-        ir_left_sensor_pub  = n.advertise<nav_msgs::Odometry>("/ir_left_sensor",  1000);
+        ir_front_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_front_sensor", 5);
+        ir_right_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_right_sensor", 5);
+        ir_left_sensor_pub  = n.advertise<nav_msgs::Odometry>("/ir_left_sensor",  5);
 
         // define nodes we subscribe to
         pose_sub = n.subscribe("pose", 1000, &RobotDriver::pose_callback, this);
