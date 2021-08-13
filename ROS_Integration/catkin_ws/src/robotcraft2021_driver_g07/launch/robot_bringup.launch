@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find robotcraft2021_driver_g07)/launch/robot_firmware.launch"/>
+    <include file="$(find robotcraft2021_driver_g07)/launch/robot_driver.launch"/>
+    <include file="$(find robotcraft2019_robot_description)/launch/display_robotcraft2019.launch"/>
+</launch>
