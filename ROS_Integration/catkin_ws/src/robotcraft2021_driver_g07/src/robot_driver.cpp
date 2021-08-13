@@ -8,6 +8,7 @@
 
 #include "tf/transform_broadcaster.h"
 
+// TODO: find out how to test tf broadcaster and test it!
 
 class RobotDriver{
 
