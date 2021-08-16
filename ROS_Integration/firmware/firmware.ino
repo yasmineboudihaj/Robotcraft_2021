@@ -1,4 +1,6 @@
 #include <Encoder.h>
+#include <SharpIR.h>
+#include <Average.h>
 
 // ROS headers
 #include <ros.h>
@@ -17,6 +19,21 @@ const byte rightMotorSpeed = 4;
 const byte rightMotorToggle = 5;
 const byte leftMotorSpeed = 9;
 const byte leftMotorToggle = 6;
+
+// sensor pin numbers
+const byte sensorLeftPin = A2;
+const byte sensorFrontPin = A3;
+const byte sensorRightPin = A4;
+
+// object to get distance from sensors
+SharpIR sensorLeft (SharpIR::GP2Y0A21YK0F, sensorLeftPin );
+SharpIR sensorFront(SharpIR::GP2Y0A21YK0F, sensorFrontPin);
+SharpIR sensorRight(SharpIR::GP2Y0A21YK0F, sensorRightPin);
+
+// We take the average of the ten last sensor outputs
+Average<float> avgLeft(10);
+Average<float> avgFront(10);
+Average<float> avgRight(10);
 
 // initialize encoders
 Encoder encR(encL1, encL2);
@@ -236,13 +253,17 @@ void loop() {
     integral_error_old[1] = integral_error_new[1];
     
     // publish data
-    front_distance.data = 20.5;
+    avgLeft.push(sensorLeft.getDistance());
+    avgFront.push(sensorFront.getDistance());
+    avgRight.push(sensorRight.getDistance());
+    
+    front_distance.data = avgLeft.mean();
     front_distance_pub.publish(&front_distance);
     
-    right_distance.data = 17.3;
+    right_distance.data = avgFront.mean();
     right_distance_pub.publish(&right_distance);
     
-    left_distance.data = 0.5;
+    left_distance.data = avgRight.mean();
     left_distance_pub.publish(&left_distance);
 
     Pose robot_pose = robot.getPose();

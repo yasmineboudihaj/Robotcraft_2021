@@ -42,9 +42,9 @@ public:
         // define nodes we publish to
         odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 1000);
 
-        ir_front_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_front_sensor", 5);
-        ir_right_sensor_pub = n.advertise<nav_msgs::Odometry>("/ir_right_sensor", 5);
-        ir_left_sensor_pub  = n.advertise<nav_msgs::Odometry>("/ir_left_sensor",  5);
+        ir_front_sensor_pub = n.advertise<sensor_msgs::Range>("/ir_front_sensor", 5);
+        ir_right_sensor_pub = n.advertise<sensor_msgs::Range>("/ir_right_sensor", 5);
+        ir_left_sensor_pub  = n.advertise<sensor_msgs::Range>("/ir_left_sensor",  5);
 
         // define nodes we subscribe to
         pose_sub = n.subscribe("pose", 1000, &RobotDriver::pose_callback, this);
@@ -81,6 +81,7 @@ public:
     nav_msgs::Odometry create_odom_message(){
         nav_msgs::Odometry odom;
         odom.header.frame_id = "odom";
+        odom.child_frame_id = "base_link";
 
         //set the position
         odom.pose.pose.position.x = robot_pose.position.x;
