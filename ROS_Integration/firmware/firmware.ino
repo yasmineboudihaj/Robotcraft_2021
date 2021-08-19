@@ -222,7 +222,7 @@ void loop() {
     deriv_error = getDerivError(prop_error_old, prop_error_new);
     integral_error_new = getIntegralError(integral_error_old, prop_error_new);
 
-    gain = pid(1.0, 0.07, 0, prop_error_new, deriv_error, integral_error_new, deltaT);
+    gain = pid(1.5, 0.3, 0.7, prop_error_new, deriv_error, integral_error_new, deltaT);
 
     float gain2 [2];
     //float desired_vels2[2];
