@@ -137,6 +137,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(robot_driver_node src/robot_driver.cpp)
+add_executable(square_test_node src/square_test.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,6 +154,9 @@ target_link_libraries(robot_driver_node
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(square_test_node
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
