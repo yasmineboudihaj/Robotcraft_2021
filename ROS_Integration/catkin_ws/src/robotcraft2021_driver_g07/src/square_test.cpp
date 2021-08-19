@@ -56,7 +56,7 @@ public:
         return sqrt(pow(x1 - y1, 2) + pow(x2 - y2, 2));
     }
 
-    geometry_msgs::Twist calculateTwist(){
+    geometry_msgs::Twist calculate_twist(){
         geometry_msgs::Twist msg;
 
         switch(state) {
@@ -119,7 +119,7 @@ public:
         ros::Rate loop_rate(10);
         while (ros::ok())
         {
-
+            cmd_vel_pub.publish(calculate_twist());
             // And throttle the loop
             ros::spinOnce();
             loop_rate.sleep();
