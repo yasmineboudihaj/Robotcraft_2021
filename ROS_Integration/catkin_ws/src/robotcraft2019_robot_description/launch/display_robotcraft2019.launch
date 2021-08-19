@@ -2,7 +2,7 @@
 <launch>
       <param name="robot_description" textfile="$(find robotcraft2019_robot_description)/urdf/robotcraft2019.urdf" />
       
-      <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotcraft2019_robot_description)/robotcraft2019_robot.rviz" />
+      <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotcraft2021_driver_g07)/rviz/config.rviz" />
       
       <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
             <remap from="joint_state" to="joint_state"/>
