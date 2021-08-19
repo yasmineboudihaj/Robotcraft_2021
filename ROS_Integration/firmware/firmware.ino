@@ -21,9 +21,12 @@ const byte leftMotorSpeed = 9;
 const byte leftMotorToggle = 6;
 
 // sensor pin numbers
-const byte sensorLeftPin = A2;
-const byte sensorFrontPin = A3;
-const byte sensorRightPin = A4;
+//const byte sensorLeftPin = A2;
+//const byte sensorFrontPin = A3;
+//const byte sensorRightPin = A4;
+const byte sensorLeftPin = A3;
+const byte sensorFrontPin = A4;
+const byte sensorRightPin = A2;
 
 // object to get distance from sensors
 SharpIR sensorLeft (SharpIR::GP2Y0A21YK0F, sensorLeftPin );
@@ -165,6 +168,7 @@ void setup() {
     
   // initialize node
   nh.initNode();
+
   
   // The topics that robot publishes:
   nh.advertise(front_distance_pub);
