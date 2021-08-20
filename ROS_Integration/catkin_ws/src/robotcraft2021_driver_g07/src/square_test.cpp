@@ -117,7 +117,7 @@ public:
             // go straight 3
             msg.linear.x  = 5.;
             msg.angular.z = 0.;
-            if (x < 0.5) state = 5;
+            if (x < 0) state = 5;
             break;
         case 5:
             // turning 3
