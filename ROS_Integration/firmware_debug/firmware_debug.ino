@@ -1,12 +1,12 @@
-#include <Encoder.h>
-#include <SharpIR.h>
-#include <Average.h>
-
 // ROS Headers
 #include <ros.h>
 #include <geometry_msgs/Pose2D.h>
 #include <std_msgs/Float32.h>
 #include <geometry_msgs/Twist.h>
+
+#include <Encoder.h>
+#include <SharpIR.h>
+#include <Average.h>
 
 // motor pins
 const byte rightMotorSpeed = 4;
@@ -173,6 +173,7 @@ long unsigned currentTime;
 // Arduino
 void setup() {
   // initialize node
+  //Serial.begin(115200);
   nh.initNode();
   //nh.getHardware()->setBaud(57600);
   
@@ -200,17 +201,21 @@ float* integralErrorNew;
 float* gain;
 
 float deltaT = 0.1;
+  
+int currentPulses[2] = {0, 0};
+int oldPulses[2] = {0, 0};
+
 void loop() {
-  int currentPulses[2] = {0, 0};
-  int oldPulses[2] = {0, 0};
   propErrorOld[0] = 0;
   propErrorNew[1] = 0;
   integralErrorOld[0] = 0;
   integralErrorOld[1] = 0;
   
-  cmd_vel2wheels(5., 0., robot, desiredWheelVels);
- 
+  cmd_vel2wheels(linear_vel, angular_vel, robot, desiredWheelVels);
   if (millis() - currentTime > 100){ // 100ms
+
+    //nh.loginfo("in loop");
+    
    // output
     currentPulses[0] = encL.read();
     currentPulses[1] = encR.read();
@@ -226,9 +231,9 @@ void loop() {
     derivError = getDerivError(propErrorOld, propErrorNew);
     integralErrorNew = getIntegralError(integralErrorOld, propErrorNew);
 
-    gain = pid(1.5, 0.3, 0.7, propErrorNew, derivError, integralErrorNew, deltaT);
+    gain = pid(1.0, 0.07, 0, propErrorNew, derivError, integralErrorNew, deltaT);
 
-    My_Pose robot_pose = robot.getPose();
+    auto robot_pose = robot.getPose();
     pose.x = robot_pose.x;
     pose.y = robot_pose.y;
     pose.theta = robot_pose.theta;
@@ -273,9 +278,10 @@ void loop() {
     
     integralErrorOld[0] = integralErrorNew[0];
     integralErrorOld[1] = integralErrorNew[1];
-
+    
     currentTime = millis();
+    
   }
+
   nh.spinOnce();
-  
 }
