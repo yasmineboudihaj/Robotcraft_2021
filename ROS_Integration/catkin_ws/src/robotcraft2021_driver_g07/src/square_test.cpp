@@ -1,7 +1,8 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
-#include "std_msgs/Bool.h"
 #include "nav_msgs/Odometry.h"
+#include "sensor_msgs/Range.h"
+
 #include <math.h>
 
 #include <tf/tf.h>
@@ -20,6 +21,10 @@ protected:
 
     // Subscribers
     ros::Subscriber odom_sub;
+    
+    ros::Subscriber front_sensor_sub;
+    ros::Subscriber right_sensor_sub;
+    ros::Subscriber left_sensor_sub;
 
 public:
 
@@ -32,6 +37,10 @@ public:
 
         // define topics we subscribe from
         odom_sub = n.subscribe("odom", 1000, &SquareTest::odom_callback, this);
+
+        front_sensor_sub = n.subscribe("/ir_front_sensor", 5, &SquareTest::front_sensor_callback, this);
+        right_sensor_sub = n.subscribe("/ir_right_sensor", 5, &SquareTest::right_sensor_callback, this);
+        left_sensor_sub  = n.subscribe("/ir_left_sensor",  5, &SquareTest::left_sensor_callback,  this);
     }
 
     void odom_callback(const nav_msgs::Odometry::ConstPtr& msg){
@@ -50,6 +59,27 @@ public:
         m.getRPY(roll, pitch, yaw);
         
         theta = yaw;
+    }
+
+    void front_sensor_callback(const sensor_msgs::Range::ConstPtr& msg){
+        auto distance = msg->range;
+        if (distance < 15.){
+            ROS_WARN("Collision risk! The robot is %.2f meters of an obstacle in the front.", distance);
+        }
+    }
+
+    void right_sensor_callback(const sensor_msgs::Range::ConstPtr& msg){
+        auto distance = msg->range;
+        if (distance < 15.){
+            ROS_WARN("Collision risk! The robot is %.2f meters of an obstacle on the right.", distance);
+        }
+    }
+
+    void left_sensor_callback(const sensor_msgs::Range::ConstPtr& msg){
+        auto distance = msg->range;
+        if (distance < 15.){
+            ROS_WARN("Collision risk! The robot is %.2f meters of an obstacle on the left.", distance);
+        }
     }
 
     double get_distance(double x1, double x2, double y1, double y2){

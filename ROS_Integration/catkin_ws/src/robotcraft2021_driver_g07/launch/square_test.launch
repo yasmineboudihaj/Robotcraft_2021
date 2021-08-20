@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="square_test" pkg="robotcraft2021_driver_g07" type="square_test_node" output="screen"/>
+</launch>
