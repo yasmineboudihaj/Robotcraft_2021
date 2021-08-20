@@ -10,9 +10,9 @@
 class SquareTest
 {
 protected:
-    double x, y, theta;
-    double goal_distance;
-    double goal_theta = M_PI/2.;
+    double x = 0.;
+    double y = 0.;
+    double theta = 0.;
 
     int state = 0;
 
