@@ -64,7 +64,7 @@ void cmd_vel_callback(const geometry_msgs::Twist& msg){
 
 ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("cmd_vel", cmd_vel_callback);
 
-struct Pose
+struct My_Pose
 {
   float x;
   float y;
@@ -78,7 +78,7 @@ class Robot
     float r;  // wheel radius
     float b;  // distance between wheels
     int C;    // encoder resolution
-    Pose pose;
+    My_Pose pose;
   
   public:
   Robot(float _r, float _b, int _C): r{_r}, b{_b}, C{_C}
@@ -90,7 +90,7 @@ class Robot
   float getR() { return r; }
   float getB() { return b; }
   int   getC() { return C; }
-  struct Pose getPose(){return pose;}
+  struct My_Pose getPose(){return pose;}
   void setPose(float x, float y, float theta)
   { 
     pose.x = x;
@@ -114,7 +114,7 @@ void poseUpdate2(int NL, int NR, class Robot& robot, float deltaT, float* realVe
   realVels[0] = v;
   realVels[1] = w;
   
-  Pose pose = robot.getPose();
+  My_Pose pose = robot.getPose();
   float theta = atan2(sin(pose.theta + w * deltaT),
                       cos(pose.theta + w * deltaT));
   robot.setPose(pose.x + v * cos(theta) * deltaT,
@@ -174,7 +174,8 @@ long unsigned currentTime;
 void setup() {
   // initialize node
   nh.initNode();
-
+  //nh.getHardware()->setBaud(57600);
+  
   // The topics that robot publishes:
   nh.advertise(pose_pub);
   
@@ -188,7 +189,6 @@ void setup() {
   currentTime = millis();
 }
 
-float desiredVels[2]; // 0 - linear, 1 - angular
 float desiredWheelVels[2]; // 0 - left, 1 - right
 float realVels[2];
 float realWheelVels[2];
@@ -208,10 +208,8 @@ void loop() {
   integralErrorOld[0] = 0;
   integralErrorOld[1] = 0;
   
-  cmd_vel(1, 0, desiredVels);
-  //cmd_vel(linear_vel, angular_vel, desiredVels);
-  cmd_vel2wheels(desiredVels[0], desiredVels[1], robot, desiredWheelVels);
-  nh.spinOnce();
+  cmd_vel2wheels(5., 0., robot, desiredWheelVels);
+ 
   if (millis() - currentTime > 100){ // 100ms
    // output
     currentPulses[0] = encL.read();
@@ -230,7 +228,7 @@ void loop() {
 
     gain = pid(1.5, 0.3, 0.7, propErrorNew, derivError, integralErrorNew, deltaT);
 
-    Pose robot_pose = robot.getPose();
+    My_Pose robot_pose = robot.getPose();
     pose.x = robot_pose.x;
     pose.y = robot_pose.y;
     pose.theta = robot_pose.theta;
@@ -249,17 +247,10 @@ void loop() {
     left_distance.data = avgRight.mean();
     left_distance_pub.publish(&left_distance);
 
-
     float gain2 [2];
-    float desiredVels2[2];
-    float realVels2[2];
     
     gain2[0] = gain[0];
     gain2[1] = gain[1];
-    desiredVels2[0] = desiredVels[0];
-    desiredVels2[1] = desiredVels[1];
-    realVels2[0] = realVels[0];
-    realVels2[1] = realVels[1];
     
     if (gain2[0] < 0) digitalWrite(leftMotorToggle, HIGH);
     else digitalWrite(leftMotorToggle, LOW);
@@ -279,9 +270,12 @@ void loop() {
     
     propErrorOld[0] = propErrorNew[0];
     propErrorOld[1] = propErrorNew[1];
+    
     integralErrorOld[0] = integralErrorNew[0];
     integralErrorOld[1] = integralErrorNew[1];
+
     currentTime = millis();
   }
+  nh.spinOnce();
   
 }
