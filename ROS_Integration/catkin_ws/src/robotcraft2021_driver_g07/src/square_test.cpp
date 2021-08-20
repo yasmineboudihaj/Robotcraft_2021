@@ -99,7 +99,7 @@ public:
         case 1:
             // turning 1
             msg.linear.x  = 0.;
-            msg.angular.z = -20.;
+            msg.angular.z = 20.;
             if (theta > M_PI/2.) state = 2;
             break;
         case 2:
@@ -111,7 +111,7 @@ public:
         case 3:
             // turning 2
             msg.linear.x  = 0.;
-            msg.angular.z = -20.;
+            msg.angular.z = 20.;
             if (theta > M_PI) state = 4;
         case 4:
             // go straight 3
@@ -122,7 +122,7 @@ public:
         case 5:
             // turning 3
             msg.linear.x  = 0.;
-            msg.angular.z = -20.;
+            msg.angular.z = 20.;
             if (theta > 1.5 * M_PI) state = 6;
             break;
         case 6:
@@ -134,7 +134,7 @@ public:
         case 7:
             // turning 4
             msg.linear.x  = 0.;
-            msg.angular.z = -20.;
+            msg.angular.z = 20.;
             if (theta > 2. * M_PI - M_PI/16.) state = 0;
             break;
         default:
