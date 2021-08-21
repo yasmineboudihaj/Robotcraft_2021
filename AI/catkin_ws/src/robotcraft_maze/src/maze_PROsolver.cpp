@@ -26,6 +26,15 @@ protected:
     std::vector<float> robot_pos = {5, 495};
     std::vector<float> goal_pos  = {135, 0};
 
+    // Step 3: define adjacent cells matrix, the costmap and O
+    std::vector<std::vector<int>> adjacent_cells = {{1, 0},
+                                                    {0, 1},
+                                                    {-1, 0},
+                                                    {0, -1}};
+    
+    std::vector<std::vector<int>> costmap;
+    std::vector<int> o;
+
     geometry_msgs::Twist findWall()
     {
         auto msg = geometry_msgs::Twist();
@@ -44,6 +53,10 @@ public:
         cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
         laser_sub   = n.subscribe("base_scan", 1000, &WavefrontPlanner::laserCallback, this);
         occupancy_grid_sub = n.subscribe("map", 1000, &WavefrontPlanner::occupancyGridCallback,  this);
+
+        // Step 3: Initialize grid point with target with 1
+        costmap = std::vector<std::vector<int>>( 540 , std::vector<int> (540, 0.));
+        costmap[goal_pos[0]][goal_pos[1]] = 1;
     }
 
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
