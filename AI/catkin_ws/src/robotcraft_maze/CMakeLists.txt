@@ -14,7 +14,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package()
 
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+add_executable(maze_BASICsolver src/maze_BASICsolver.cpp)
+add_executable(maze_PROsolver   src/maze_PROsolver.cpp)
+
+target_link_libraries(maze_BASICsolver ${catkin_LIBRARIES})
+target_link_libraries(maze_PROsolver   ${catkin_LIBRARIES})
