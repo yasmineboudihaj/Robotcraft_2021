@@ -9,9 +9,22 @@ class WavefrontPlanner
 {
 protected:
     std::vector<int8_t> grid;
+
     ros::Publisher cmd_vel_pub;
     ros::Subscriber laser_sub;
     ros::Subscriber occupancy_grid_sub;
+
+    /*
+      Step 2: Identify the robot start position (i.e., (0.05/4.95)) and the
+              target position (i.e., (1.35, 0)) within the x-y-grid:
+              The map server gives us an occupancy grid of dimension 540x540,
+              we know that the map itself is 5.4x5.4 units. This means each pixel
+              of the grid is 0.01 units wide and high. 
+              Thus, we get the correct values directly by multiplying the map
+              coordinates by 100 to get the corresponding coordinate in the x-y-grid.
+    */
+    std::vector<float> robot_pos = {5, 495};
+    std::vector<float> goal_pos  = {135, 0};
 
     geometry_msgs::Twist findWall()
     {
@@ -22,7 +35,7 @@ protected:
     }
 
 public:
-
+    
     WavefrontPlanner(){
         // Initialize ROS
         ros::NodeHandle n;
@@ -36,6 +49,7 @@ public:
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
     }
 
+    // Step 1: Discretize the (known) map: 0 = empty, 100 = full
     void occupancyGridCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg){
         grid = msg->data;
         std::cout << "Length of vector = " << grid.size() << std::endl;
