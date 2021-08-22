@@ -81,17 +81,21 @@ public:
         O = O(2: dim O , 1: 2)*/
     void algorithm(){
         while(o.size() != 0){
+            std::vector<std::vector<int>> tmp = {};
             for(int row = 0; row < adjacent_cells.size(); row++){
-                std::vector<int> aux = {o[0][0] + adjacent_cells[row][0],
-                                        o[0][1] + adjacent_cells[row][1]};
+                for (int o_index = 0; o_index < o.size(); o_index++){
+                    std::vector<int> aux = {o[o_index][0] + adjacent_cells[row][0],
+                                            o[o_index][1] + adjacent_cells[row][1]};
                 // TODO: make sure the map index is correct!!
                 if ((0 <= aux[0] && aux[0] < 540)     &&
                     (0 <= aux[1] && aux[1] < 540)     &&
                     (map[aux[0] * 540 + aux[1]] == 0) && 
                     (costmap[aux[0]][aux[1]] == 0)){
                         costmap[aux[0]][aux[1]] = costmap[o[0][0]][o[0][1]] + 1;
+                        tmp.push_back(aux);
                     }
-                // update??
+                }
+                o = tmp;
             }
         }
     }
