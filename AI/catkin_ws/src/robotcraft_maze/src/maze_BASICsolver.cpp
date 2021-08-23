@@ -43,6 +43,13 @@ void turn (double angular_vel){
     cmd_vel_pub.publish(cmd_msg);
 }
 
+void slight_turn (double angular_vel){
+    geometry_msgs::Twist cmd_msg;
+    cmd_msg.linear.x = 0.1;
+    cmd_msg.angular.z = angular_vel;
+    cmd_vel_pub.publish(cmd_msg);
+}
+
 // Functions for the 'different possible states we can have which are:
 // Lost, CCW, Right_Wall, Left_Wall
 
@@ -64,10 +71,11 @@ int ccw(){
 
 int wall1(){
     if (!right_sensor){
-        move(0.1);
+        /*move(0.1);
         usleep(100000);
         turn(-0.2);
-        usleep(100000);
+        usleep(100000);*/
+        slight_turn(-0.25);
     }
     else
         return STATE_WALL2;
@@ -76,10 +84,11 @@ int wall1(){
 int wall2(){
     if (!left_sensor){
         if (right_sensor){
-            turn(0.2);
+            /*turn(0.2);
             usleep(100000);
             move(0.1);
-            usleep(100000);
+            usleep(100000);*/
+            slight_turn(0.2);
         } else {
             return STATE_WALL1;
         }
