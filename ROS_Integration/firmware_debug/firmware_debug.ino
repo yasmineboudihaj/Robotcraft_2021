@@ -107,7 +107,7 @@ Robot robot = Robot(0.015, 0.095, 12 * 298);
 // and robots's physical properties
 void poseUpdate2(int NL, int NR, class Robot& robot, float deltaT, float* realVels)
 {
-  float coefficient = 2 * PI * robot.getR()/robot.getC()/deltaT;
+  float coefficient = 2 * PI * robot.getR()/(robot.getC()*deltaT);
   float v = coefficient * (NR + NL)/2.;
   float w = coefficient * (NR - NL)/robot.getB();
 
@@ -172,6 +172,18 @@ float* pid(float Kp, float Ki, float Kd, float* prop_error, float* deriv_error, 
 long unsigned currentTime;
 // Arduino
 void setup() {
+   pinMode(rightMotorSpeed, OUTPUT);
+   pinMode(rightMotorToggle, OUTPUT);
+   pinMode(leftMotorSpeed, OUTPUT);
+   pinMode(leftMotorToggle, OUTPUT);
+   pinMode(encL1,INPUT);
+   pinMode(encL2,INPUT);
+   pinMode(encR1,INPUT);
+   pinMode(encR2,INPUT);
+   pinMode(sensorLeftPin,INPUT);
+   pinMode(sensorFrontPin,INPUT);
+   pinMode(sensorRightPin,INPUT);
+   
   // initialize node
   //Serial.begin(115200);
   nh.initNode();
