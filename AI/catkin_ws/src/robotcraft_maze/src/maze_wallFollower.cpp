@@ -68,7 +68,6 @@ protected:
             (current_theta > M_PI + M_PI/32.       && current_theta < 1.5 * M_PI - M_PI/32.)||
             (current_theta > 1.5 * M_PI + M_PI/32. && current_theta < 2 * M_PI - M_PI/32.  ))
         {
-            //std::cout << "Correcting" << std::endl;
             msg.angular.z = 0.2;
         }
         else
@@ -82,9 +81,7 @@ protected:
     // Chooses one of the three previously defined behaviors based on the current
     // situation (i.e., is or is there not a wall on the left/front/right?)
     geometry_msgs::Twist chooseBehavior()
-    {      
-        //std::cout << current_theta << std::endl;
-        //std::cout << left_obstacle_distance << front_obstacle_distance << right_obstacle_distance << std::endl;        
+    {             
         if (front_obstacle_distance >  d && left_obstacle_distance > d && right_obstacle_distance > d)
         {
             // no walls in sight (gotta find the right wall!)
@@ -167,8 +164,7 @@ public:
         tf::Matrix3x3 m(q);
 
         double roll, pitch, yaw;
-        m.getRPY(roll, pitch, yaw);
-        //current_theta = abs(odom_pose.pose.orientation.z);  
+        m.getRPY(roll, pitch, yaw); 
         current_theta = abs(yaw);
     }
 
