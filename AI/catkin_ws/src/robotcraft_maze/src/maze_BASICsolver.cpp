@@ -2,6 +2,8 @@
 #include "sensor_msgs/LaserScan.h"
 #include "geometry_msgs/Twist.h"
 
+#include <unistd.h>
+
 #define STATE_LOST 0
 #define STATE_CCW 1
 #define STATE_WALL1 2
@@ -37,7 +39,6 @@ void move (double linear_vel){
 //Turn
 void turn (double angular_vel){
     geometry_msgs::Twist cmd_msg;
-    cmd_msg.linear.x = 0.4;
     cmd_msg.angular.z = angular_vel;
     cmd_vel_pub.publish(cmd_msg);
 }
@@ -64,7 +65,9 @@ int ccw(){
 int wall1(){
     if (!right_sensor){
         move(0.1);
+        usleep(100000);
         turn(-0.2);
+        usleep(100000);
     }
     else
         return STATE_WALL2;
@@ -74,7 +77,9 @@ int wall2(){
     if (!left_sensor){
         if (right_sensor){
             turn(0.2);
+            usleep(100000);
             move(0.1);
+            usleep(100000);
         } else {
             return STATE_WALL1;
         }
