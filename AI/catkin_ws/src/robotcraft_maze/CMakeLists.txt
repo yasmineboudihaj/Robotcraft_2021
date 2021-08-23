@@ -16,8 +16,10 @@ catkin_package()
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(maze_BASICsolver src/maze_BASICsolver.cpp)
-add_executable(maze_PROsolver   src/maze_PROsolver.cpp)
+add_executable(maze_wallFollower src/maze_wallFollower.cpp)
+add_executable(maze_BASICsolver  src/maze_BASICsolver.cpp)
+add_executable(maze_PROsolver    src/maze_PROsolver.cpp)
 
-target_link_libraries(maze_BASICsolver ${catkin_LIBRARIES})
-target_link_libraries(maze_PROsolver   ${catkin_LIBRARIES})
+target_link_libraries(maze_wallFollower ${catkin_LIBRARIES})
+target_link_libraries(maze_BASICsolver  ${catkin_LIBRARIES})
+target_link_libraries(maze_PROsolver    ${catkin_LIBRARIES})

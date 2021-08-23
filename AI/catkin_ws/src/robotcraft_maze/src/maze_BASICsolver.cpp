@@ -1,6 +1,8 @@
 #include "ros/ros.h"
-#include "sensor_msgs/Range.h"
+#include "sensor_msgs/LaserScan.h"
 #include "geometry_msgs/Twist.h"
+
+#include <unistd.h>
 
 #define STATE_LOST 0
 #define STATE_CCW 1
@@ -14,14 +16,14 @@ ros::Publisher cmd_vel_pub;
 
 //Sensor's Callback functions
 
-void right_sensor_callback(const sensor_msgs::Range::ConstPtr& msg){
-    if(msg->range < 0.8)
+void right_sensor_callback(const sensor_msgs::LaserScan::ConstPtr& msg){
+    if(msg->ranges[0] < msg->range_max)
         right_sensor = true;
     else
         right_sensor = false;
 }
-void left_sensor_callback (const sensor_msgs::Range::ConstPtr& msg){
-    if(msg->range < 0.8)
+void left_sensor_callback (const sensor_msgs::LaserScan::ConstPtr& msg){
+    if(msg->ranges[0] < msg->range_max)
         left_sensor = true;
     else
         left_sensor = false;
@@ -41,13 +43,19 @@ void turn (double angular_vel){
     cmd_vel_pub.publish(cmd_msg);
 }
 
+void slight_turn (double angular_vel){
+    geometry_msgs::Twist cmd_msg;
+    cmd_msg.linear.x = 0.1;
+    cmd_msg.angular.z = angular_vel;
+    cmd_vel_pub.publish(cmd_msg);
+}
 
 // Functions for the 'different possible states we can have which are:
 // Lost, CCW, Right_Wall, Left_Wall
 
 int lost(){
     if (!right_sensor && !left_sensor)
-        move(0.2);
+        move(0.1);
     else
         return STATE_CCW;
     return STATE_LOST;
@@ -55,15 +63,19 @@ int lost(){
 
 int ccw(){
     if (right_sensor || left_sensor)
-        move(0.2);
+        turn(0.2);
     else
         return STATE_WALL1;
     return STATE_CCW;
 }
+
 int wall1(){
     if (!right_sensor){
-        move(0.2);
-        move(-10);
+        /*move(0.1);
+        usleep(100000);
+        turn(-0.2);
+        usleep(100000);*/
+        slight_turn(-0.25);
     }
     else
         return STATE_WALL2;
@@ -72,12 +84,17 @@ int wall1(){
 int wall2(){
     if (!left_sensor){
         if (right_sensor){
-            turn(10);
-            move(0.2);
+            /*turn(0.2);
+            usleep(100000);
+            move(0.1);
+            usleep(100000);*/
+            slight_turn(0.2);
+        } else {
+            return STATE_WALL1;
         }
+    } else {
+        return STATE_CCW;
     }
-    else
-        return STATE_WALL1;
     return STATE_WALL2;
 }
 
@@ -91,12 +108,12 @@ int main(int argc, char **argv){
     //Publish cmd_vel
     cmd_vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel",100);
 
-    //Subcribing to both letf and right sensors
+    //Subcribing to both left and right sensors
     ros::Subscriber right_sensor_sub; 
     ros::Subscriber left_sensor_sub; 
 
-    right_sensor_sub = n.subscribe("right_sensor_m", 100, right_sensor_callback);
-    left_sensor_sub = n.subscribe("left_sensor_m", 100, left_sensor_callback);
+    right_sensor_sub = n.subscribe("base_scan_3", 100, right_sensor_callback);
+    left_sensor_sub  = n.subscribe("base_scan_2", 100, left_sensor_callback);
 
 
     // At first the robot is Lost

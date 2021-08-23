@@ -8,7 +8,7 @@
 class WavefrontPlanner
 {
 protected:
-    std::vector<int8_t> grid;
+    std::vector<int8_t> map;
 
     ros::Publisher cmd_vel_pub;
     ros::Subscriber laser_sub;
@@ -23,8 +23,8 @@ protected:
               Thus, we get the correct values directly by multiplying the map
               coordinates by 100 to get the corresponding coordinate in the x-y-grid.
     */
-    std::vector<float> robot_pos = {5, 495};
-    std::vector<float> goal_pos  = {135, 0};
+    std::vector<int> robot_pos = {5, 495};
+    std::vector<int> goal_pos  = {135, 0};
 
     // Step 3: define adjacent cells matrix, the costmap and O
     std::vector<std::vector<int>> adjacent_cells = {{1, 0},
@@ -32,8 +32,12 @@ protected:
                                                     {-1, 0},
                                                     {0, -1}};
     
+    
     std::vector<std::vector<int>> costmap;
-    std::vector<int> o;
+
+    // initialize o with target point
+    std::vector<std::vector<int>> o = {{goal_pos[0], goal_pos[1]}};
+    
 
     geometry_msgs::Twist findWall()
     {
@@ -57,6 +61,7 @@ public:
         // Step 3: Initialize grid point with target with 1
         costmap = std::vector<std::vector<int>>( 540 , std::vector<int> (540, 0.));
         costmap[goal_pos[0]][goal_pos[1]] = 1;
+
     }
 
     void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
@@ -64,8 +69,35 @@ public:
 
     // Step 1: Discretize the (known) map: 0 = empty, 100 = full
     void occupancyGridCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg){
-        grid = msg->data;
-        std::cout << "Length of vector = " << grid.size() << std::endl;
+        map = msg->data;
+        std::cout << "Length of vector = " << map.size() << std::endl;
+    }
+    /*while (dim O > 0)
+        for each r row of A
+            aux(1,1: 2) = O(1,1: 2) + A(r, 1: 2)
+            if 1 ≤ aux 1,1 ≤ dim x axis and 1 ≤ aux 1,2 ≤ dim y axis and M aux = 0 and C aux = 0
+                C aux, 1: 2 = C O 1,1: 2 + 1
+                O dim O + 1,1: 2 = aux
+        O = O(2: dim O , 1: 2)*/
+    void algorithm(){
+        while(o.size() != 0){
+            std::vector<std::vector<int>> tmp = {};
+            for(int row = 0; row < adjacent_cells.size(); row++){
+                for (int o_index = 0; o_index < o.size(); o_index++){
+                    std::vector<int> aux = {o[o_index][0] + adjacent_cells[row][0],
+                                            o[o_index][1] + adjacent_cells[row][1]};
+                // TODO: make sure the map index is correct!!
+                if ((0 <= aux[0] && aux[0] < 540)     &&
+                    (0 <= aux[1] && aux[1] < 540)     &&
+                    (map[aux[0] * 540 + aux[1]] == 0) && 
+                    (costmap[aux[0]][aux[1]] == 0)){
+                        costmap[aux[0]][aux[1]] = costmap[o[0][0]][o[0][1]] + 1;
+                        tmp.push_back(aux);
+                    }
+                }
+                o = tmp;
+            }
+        }
     }
 
     void run(){
