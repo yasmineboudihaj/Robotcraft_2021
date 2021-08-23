@@ -2,7 +2,7 @@
 
 <launch>
     <node pkg="stage_ros" type="stageros" name="stageros" args="$(find robotcraft_maze)/world/robotcraft_maze.world" />
-    <node pkg="robotcraft_maze" type="maze_BASICsolver" name="maze_BASICsolver" />
+    <node pkg="robotcraft_maze" type="maze_BASICsolver" name="maze_BASICsolver" output="screen"/>
     <!-- <node pkg="robotcraft_maze" type="maze_PROsolver" name="maze_PROsolver" /> -->
 
 </launch>  
