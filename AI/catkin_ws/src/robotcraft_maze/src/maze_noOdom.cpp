@@ -6,7 +6,6 @@
 #include "sensor_msgs/LaserScan.h"
 #include "std_msgs/String.h"
 #include "geometry_msgs/Twist.h"
-#include "nav_msgs/Odometry.h"
 
 #include <tf/tf.h>
 
@@ -24,10 +23,6 @@ protected:
     ros::Subscriber left_sensor_sub;
     ros::Subscriber front_sensor_sub;
     ros::Subscriber right_sensor_sub;
-    ros::Subscriber odom_sub;
-
-    double current_theta = 0;
-    
     /*
         The idea behind the wall follower algorithm, is to find the way out of a labyrinth
         by following the right wall. 
@@ -126,8 +121,6 @@ public:
 
         // define nodes we publish to and subscribe from
         cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-        
-        odom_sub = n.subscribe("odom", 1000, &WallFollower::odomCallback,  this);
 
         left_sensor_sub  = n.subscribe("base_scan_2", 100, &WallFollower::leftSensorCallback,  this);
         front_sensor_sub = n.subscribe("base_scan_1", 100, &WallFollower::frontSensorCallback, this);
@@ -144,22 +137,6 @@ public:
 
     void rightSensorCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
         right_obstacle_distance = msg->ranges[0];
-    }
-    
-    // saves the current orientation of the robot taken from the odometry topic
-    void odomCallback(const nav_msgs::Odometry::ConstPtr& odometry_msg)
-    {
-        auto odom_pose = odometry_msg -> pose;
-        tf::Quaternion q(
-            odometry_msg->pose.pose.orientation.x,
-            odometry_msg->pose.pose.orientation.y,
-            odometry_msg->pose.pose.orientation.z,
-            odometry_msg->pose.pose.orientation.w);
-        tf::Matrix3x3 m(q);
-
-        double roll, pitch, yaw;
-        m.getRPY(roll, pitch, yaw); 
-        current_theta = abs(yaw);
     }
 
     void run(){
