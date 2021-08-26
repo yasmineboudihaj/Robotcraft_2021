@@ -17,9 +17,9 @@ protected:
     double right_obstacle_distance;
 
     // threshold for the distances to the wall
-    double d = 0.5;
+    double d = 20;
     // threshold to avoid hitting the wall
-    double emergency_threshold = 0.2;
+    double emergency_threshold = 11;
 
     // linear and angular velocity
     double linear_vel = 0.07;
