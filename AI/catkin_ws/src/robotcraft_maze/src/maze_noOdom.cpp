@@ -17,13 +17,13 @@ protected:
     double right_obstacle_distance;
 
     // threshold for the distances to the wall
-    double d = 20;
+    double d = 25;
     // threshold to avoid hitting the wall
-    double emergency_threshold = 11;
+    double emergency_threshold = 15;
 
     // linear and angular velocity
-    double linear_vel = 0.07;
-    double angular_vel = 1.5;
+    double linear_vel = 0.1;
+    double angular_vel = 0.8;
 
     ros::Publisher cmd_vel_pub;
     ros::Subscriber left_sensor_sub;
