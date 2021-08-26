@@ -18,6 +18,12 @@ protected:
 
     // threshold for the distances to the wall
     double d = 0.5;
+    // threshold to avoid hitting the wall
+    double emergency_threshold = 0.2;
+
+    // linear and angular velocity
+    double linear_vel = 0.07;
+    double angular_vel = 1.5;
 
     ros::Publisher cmd_vel_pub;
     ros::Subscriber left_sensor_sub;
@@ -38,8 +44,8 @@ protected:
     {
         ROS_INFO("Finding the wall");
         auto msg = geometry_msgs::Twist();
-        msg.linear.x = 0.2;
-        msg.angular.z = -0.5;
+        msg.linear.x = linear_vel;
+        msg.angular.z = -1. * angular_vel;
         return msg;
     }
 
@@ -47,7 +53,7 @@ protected:
     {
         ROS_INFO("Turning left");
         auto msg = geometry_msgs::Twist();
-        msg.angular.z = 0.5;
+        msg.angular.z = angular_vel;
         return msg;
     }
 
@@ -58,11 +64,11 @@ protected:
         // to go straight (to avoid collisions with walls).
         // So, in this if-condition, we correct the robot's rotation.
         auto msg = geometry_msgs::Twist();
-        if (right_obstacle_distance < 0.2){
+        if (right_obstacle_distance < emergency_threshold){
             ROS_INFO("Correcting");
-            msg.angular.z = 0.5;
+            msg.angular.z = angular_vel;
         } else {
-            msg.linear.x = 0.2;
+            msg.linear.x = linear_vel;
         }        
         return msg;
     }
@@ -122,9 +128,9 @@ public:
         // define nodes we publish to and subscribe from
         cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 
-        left_sensor_sub  = n.subscribe("base_scan_2", 100, &WallFollower::leftSensorCallback,  this);
-        front_sensor_sub = n.subscribe("base_scan_1", 100, &WallFollower::frontSensorCallback, this);
-        right_sensor_sub = n.subscribe("base_scan_3", 100, &WallFollower::rightSensorCallback, this);
+        left_sensor_sub  = n.subscribe("ir_left_sensor", 100, &WallFollower::leftSensorCallback,  this);
+        front_sensor_sub = n.subscribe("ir_front_sensor", 100, &WallFollower::frontSensorCallback, this);
+        right_sensor_sub = n.subscribe("ir_right_sensor", 100, &WallFollower::rightSensorCallback, this);
     }
 
     void leftSensorCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
