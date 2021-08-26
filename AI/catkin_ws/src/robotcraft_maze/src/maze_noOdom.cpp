@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "ros/ros.h"
-#include "sensor_msgs/LaserScan.h"
+#include "sensor_msgs/Range.h"
 #include "std_msgs/String.h"
 #include "geometry_msgs/Twist.h"
 
@@ -31,9 +31,9 @@ protected:
     ros::Subscriber right_sensor_sub;
     /*
         The idea behind the wall follower algorithm, is to find the way out of a labyrinth
-        by following the right wall. 
+        by following the right wall.
         In the following, we define three behaviors to achieve this:
-          1) findWall():      If there is no wall in sight, we find the right wall by 
+          1) findWall():      If there is no wall in sight, we find the right wall by
                               going straight while slightly turning right.
           2) turnLeft():      If we cannot go straight because a wall is blocking our
                               way, we turn left until the path is clear again.
@@ -69,14 +69,14 @@ protected:
             msg.angular.z = angular_vel;
         } else {
             msg.linear.x = linear_vel;
-        }        
+        }
         return msg;
     }
 
     // Chooses one of the three previously defined behaviors based on the current
     // situation (i.e., is or is there not a wall on the left/front/right?)
     geometry_msgs::Twist chooseBehavior()
-    {             
+    {
         if (front_obstacle_distance >  d && left_obstacle_distance > d && right_obstacle_distance > d)
         {
             // no walls in sight (gotta find the right wall!)
@@ -96,7 +96,7 @@ protected:
         {
             // wall only on the left (we lost our right wall)
             return findWall();
-        }    
+        }
         else if (front_obstacle_distance < d && left_obstacle_distance > d && right_obstacle_distance < d)
         {
             // walls front and right (cannot go straight or right, so let's find another way)
@@ -116,7 +116,7 @@ protected:
         {
             // wall left and right
             return turnLeft();
-        }            
+        }
     }
 
 public:
@@ -133,16 +133,16 @@ public:
         right_sensor_sub = n.subscribe("ir_right_sensor", 100, &WallFollower::rightSensorCallback, this);
     }
 
-    void leftSensorCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-        left_obstacle_distance = msg->ranges[0];
+    void leftSensorCallback(const sensor_msgs::Range::ConstPtr& msg){
+        left_obstacle_distance = msg->range;
     }
 
-    void frontSensorCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-        front_obstacle_distance = msg->ranges[0];
+    void frontSensorCallback(const sensor_msgs::Range::ConstPtr& msg){
+        front_obstacle_distance = msg->range;
     }
 
-    void rightSensorCallback(const sensor_msgs::LaserScan::ConstPtr& msg){
-        right_obstacle_distance = msg->ranges[0];
+    void rightSensorCallback(const sensor_msgs::Range::ConstPtr& msg){
+        right_obstacle_distance = msg->range;
     }
 
     void run(){
