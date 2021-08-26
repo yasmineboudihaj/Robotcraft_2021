@@ -75,7 +75,7 @@ int wall1(){
         usleep(100000);
         turn(-0.2);
         usleep(100000);*/
-        slight_turn(-0.25);
+        slight_turn(-0.2);
     }
     else
         return STATE_WALL2;
@@ -88,7 +88,7 @@ int wall2(){
             usleep(100000);
             move(0.1);
             usleep(100000);*/
-            slight_turn(0.2);
+            slight_turn(0.35);
         } else {
             return STATE_WALL1;
         }

@@ -1,9 +1,11 @@
 #include <vector>
+#include <unistd.h>
 
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h" // maybe delete this later...
 #include "sensor_msgs/LaserScan.h" // maybe delete this later...
 #include "nav_msgs/OccupancyGrid.h"
+
 
 class WavefrontPlanner
 {
@@ -80,17 +82,30 @@ public:
                 O dim O + 1,1: 2 = aux
         O = O(2: dim O , 1: 2)*/
     void algorithm(){
+
+        std::cout << "Start algorithm!" << std::endl;
+        if (map.size() == 0){
+            std::cout << "Map is empty" << std::endl;
+            return;
+        }
         while(o.size() != 0){
+            std::cout << "Got inside while" << std::endl;
             std::vector<std::vector<int>> tmp = {};
             for(int row = 0; row < adjacent_cells.size(); row++){
                 for (int o_index = 0; o_index < o.size(); o_index++){
                     std::vector<int> aux = {o[o_index][0] + adjacent_cells[row][0],
                                             o[o_index][1] + adjacent_cells[row][1]};
                 // TODO: make sure the map index is correct!!
+                std::cout << "Index for map: " << aux[0] * 540 + aux[1] << std::endl;
+                std::cout << "Size of map: " << map.size() << std::endl;
+                std::cout << "...gives us:" << map[aux[0] * 540 + aux[1]] << std::endl;
+                std::cout << "Indices for costmap: " << aux[0] << "&" << aux[1] << std::endl;
+                std::cout << "...gives us: " << costmap[aux[0]][aux[1]] << std::endl;
                 if ((0 <= aux[0] && aux[0] < 540)     &&
                     (0 <= aux[1] && aux[1] < 540)     &&
-                    (map[aux[0] * 540 + aux[1]] == 0) && 
+                    ((int)map[aux[0] * 540 + aux[1]] == 0) && 
                     (costmap[aux[0]][aux[1]] == 0)){
+                        std::cout << "Got into if!" << std::endl;
                         costmap[aux[0]][aux[1]] = costmap[o[0][0]][o[0][1]] + 1;
                         tmp.push_back(aux);
                     }
@@ -98,6 +113,7 @@ public:
                 o = tmp;
             }
         }
+        std::cout << "Stop algorithm!" << std::endl;
     }
 
     void run(){
@@ -106,7 +122,7 @@ public:
         while (ros::ok())
         {
             //cmd_vel_pub.publish(msg);
-
+            algorithm();
             // And throttle the loop
             ros::spinOnce();
             loop_rate.sleep();
